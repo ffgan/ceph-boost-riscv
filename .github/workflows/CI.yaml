@@ -13,7 +13,7 @@ jobs:
       fail-fast: false
 
     runs-on: self-hosted
-
+    shell: bash
     steps:
       - name: Show uname info
         run: |
