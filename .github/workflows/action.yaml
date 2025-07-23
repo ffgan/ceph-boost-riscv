@@ -14,14 +14,10 @@ jobs:
 
     runs-on: self-hosted
 
-    env:
-      REMOTE_HOST_NAME : u22
-      REMOTE_EXEC_PREFIX : "ssh $REMOTE_HOST_NAME"
-
     steps:
       - name: Show uname info
         run : |
-          "$REMOTE_EXEC_PREFIX uname -a"
+          ssh u22 uname -a
 
   #     - name: Setup Boost
   #       run: |
