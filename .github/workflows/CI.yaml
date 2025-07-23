@@ -13,7 +13,7 @@ jobs:
       fail-fast: false
 
     runs-on: self-hosted
-    shell: bash
+    
     steps:
       - name: Show uname info
         run: |
@@ -55,7 +55,8 @@ jobs:
           scp u22:~/*.deb ./
 
       - name: Show deb package
-        run: |
+        run:
+          shell: bash
           ls -l *.deb
 
       - name: Upload deb package
