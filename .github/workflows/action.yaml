@@ -21,7 +21,7 @@ jobs:
     steps:
       - name: Show uname info
         run : |
-          $REMOTE_EXEC_PREFIX uname -a
+          "$REMOTE_EXEC_PREFIX uname -a"
 
   #     - name: Setup Boost
   #       run: |
