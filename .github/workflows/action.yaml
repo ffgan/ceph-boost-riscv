@@ -12,7 +12,7 @@ jobs:
     strategy:
       fail-fast: false
 
-    runs-on: win11
+    runs-on: self-hosted
 
     env:
       REMOTE_HOST_NAME : u22
