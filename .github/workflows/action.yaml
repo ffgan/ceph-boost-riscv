@@ -16,13 +16,16 @@ jobs:
 
     steps:
       - name: Show uname info
-        run : |
+        run: |
           ssh u22 uname -a
 
-  #     - name: Setup Boost
-  #       run: |
-  #         ./bootstrap.sh
-  #         ./b2 -d0 headers
+      - name: Setup Boost
+        run: |
+          # https://docs.ceph.com/en/latest/dev/continuous-integration/#build-dependencies
+          # download ceph-boost 1.82
+          ssh u22 "wget http://download.ceph.com/qa/boost_1_82_0.tar.bz2 &&tar xjf boost_1_82_0.tar.bz2 && cd boost_1_82_0 && ls -l "
+          # ./bootstrap.sh
+          # ./b2 -d0 headers
 
   #     - name: Build Boost
   #       run: |
