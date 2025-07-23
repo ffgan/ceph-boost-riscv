@@ -13,7 +13,7 @@ jobs:
       fail-fast: false
 
     runs-on: self-hosted
-
+    timeout-minutes: 30000
     steps:
       - name: Show uname info
         run: |
