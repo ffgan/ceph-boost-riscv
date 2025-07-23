@@ -52,7 +52,7 @@ jobs:
 
       - name: Copy deb package
         run: |
-          scp u22:~/*.deb ./
+          scp u22:~/ceph*deb ./
 
       - name: Show deb package
         run: dir
@@ -61,4 +61,4 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: ceph-boost-deb
-          path: ./*.deb
+          path: ./ceph*deb
