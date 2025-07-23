@@ -39,3 +39,27 @@ jobs:
       - name: Test Boost
         run: |
           ssh u22 "cd boost_1_82_0/status && ../b2 -j3 quick"
+
+      - name: Build deb package
+        run: |
+          ssh u22 "git clone https://github.com/ceph/ceph-boost;\
+                  cp -ra ceph-boost/debian boost_1_82_0/;\
+                  pushd boost_1_82_0/;\
+                  export DEB_BUILD_OPTIONS='parallel=6 nodoc';\
+                  sed -i 's/1.21/1.82/g' debian/control;\
+                  dpkg-buildpackage -us -uc -b;\
+                  popd;ls -l"
+
+      - name: Copy deb package
+        run: |
+          scp u22:~/boost_1_82_0/*.deb ./
+
+      - name: Show deb package
+        run: |
+          ls -l *.deb
+
+      - name: Upload deb package
+        uses: actions/upload-artifact@v3
+        with:
+          name: boost-deb-packages
+          path: ./*.deb
