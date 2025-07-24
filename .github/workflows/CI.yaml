@@ -22,7 +22,9 @@ jobs:
         run: |
           # https://docs.ceph.com/en/latest/dev/continuous-integration/#build-dependencies
           # download ceph-boost 1.82
-          ssh rvu24 "wget http://download.ceph.com/qa/boost_1_82_0.tar.bz2 &&  chown root:root boost_1_82_0.tar.bz2 && tar xjf boost_1_82_0.tar.bz2 && cd boost_1_82_0 && ls -l "
+          curl http://download.ceph.com/qa/boost_1_82_0.tar.bz2 -o boost_1_82_0.tar.bz2 
+          scp boost_1_82_0.tar.bz2 rvu24:~/
+          ssh rvu24 " &&  chown root:root boost_1_82_0.tar.bz2 && tar xjf boost_1_82_0.tar.bz2 && cd boost_1_82_0 && ls -l "
 
       - name: b2 -  Setup Boost
         run: |
