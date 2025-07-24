@@ -17,32 +17,48 @@ jobs:
     steps:
       - name: Show uname info
         run: |
-          ssh u22 uname -a
+          ssh rvu24 uname -a
       - name: Download Boost
         run: |
           # https://docs.ceph.com/en/latest/dev/continuous-integration/#build-dependencies
           # download ceph-boost 1.82
-          ssh u22 "wget http://download.ceph.com/qa/boost_1_82_0.tar.bz2 &&tar xjf boost_1_82_0.tar.bz2 && cd boost_1_82_0 && ls -l "
+          ssh rvu24 "wget http://download.ceph.com/qa/boost_1_82_0.tar.bz2 &&tar xjf boost_1_82_0.tar.bz2 && cd boost_1_82_0 && ls -l "
 
-      - name: Setup Boost
+      - name: b2 -  Setup Boost
         run: |
-          ssh u22 "cd boost_1_82_0 && ./bootstrap.sh && ./b2 -d0 headers"
+          ssh rvu24 "cd boost_1_82_0 && ./bootstrap.sh && ./b2 -d0 headers"
 
-      - name: Build Boost
+      - name: b2 -  Build Boost
         run: |
-          ssh u22 "cd boost_1_82_0 &&  ./b2 -j3 stage"
+          ssh rvu24 "cd boost_1_82_0 &&  ./b2 -j64 stage"
 
-      - name: Install Boost
+      - name: b2 -  Install Boost
         run: |
-          ssh u22 "cd boost_1_82_0 && ./b2 -j3 --prefix=$HOME/.local install"
+          ssh rvu24 "cd boost_1_82_0 && ./b2 -j64 --prefix=$HOME/.local install"
 
-      - name: Test Boost
+      - name: b2 -  Test Boost
         run: |
-          ssh u22 "cd boost_1_82_0/status && ../b2 -j3 quick"
+          ssh rvu24 "cd boost_1_82_0/status && ../b2 -j64 quick"
+
+      - name: cmake -  Setup Boost
+        run: |
+          ssh rvu24 "cd boost_1_82_0 && mkdir __build__ && cd __build__ && cmake -DBUILD_SHARED_LIBS=ON -DCMAKE_INSTALL_PREFIX=~/.local .."
+
+      - name: cmake -  Build Boost
+        run: |
+          ssh rvu24 "cd boost_1_82_0/__build__ &&  cmake --build . -j 64"
+
+      - name: cmake -  Install Boost
+        run: |
+          ssh rvu24 "cd boost_1_82_0/__build__ && cmake --build . -j 64 --target install"
+
+      - name: cmake -  Test Boost
+        run: |
+          ssh rvu24 "cd boost_1_82_0/__build && cmake -DBUILD_TESTING=ON .. && cmake --build . -j 64 --target tests && ctest --output-on-failure --no-tests=error -j 64 -R quick"
 
       - name: Build deb package
         run: |
-          ssh u22 "git clone https://github.com/ceph/ceph-boost;\
+          ssh rvu24 "git clone https://github.com/ceph/ceph-boost;\
                   cp -ra ceph-boost/debian boost_1_82_0/;\
                   pushd boost_1_82_0/;\
                   export DEB_BUILD_OPTIONS='parallel=6 nodoc';\
@@ -52,7 +68,7 @@ jobs:
 
       - name: Copy deb package
         run: |
-          scp u22:~/ceph*deb ./
+          scp rvu24:~/ceph*deb ./
 
       - name: Show deb package
         run: dir
