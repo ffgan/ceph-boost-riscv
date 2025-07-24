@@ -21,7 +21,7 @@ jobs:
           # download ceph-boost 1.82
           curl http://download.ceph.com/qa/boost_1_82_0.tar.bz2 -o boost_1_82_0.tar.bz2
           scp boost_1_82_0.tar.bz2 rv_u24:~/
-          ssh rv_u24 "chown root:root boost_1_82_0.tar.bz2 && tar xjf boost_1_82_0.tar.bz2 && cd boost_1_82_0 && ls -l "
+          ssh rv_u24 "chown root:root boost_1_82_0.tar.bz2 && tar xjf boost_1_82_0.tar.bz2 --no-same-permissions && cd boost_1_82_0 && ls -l "
 
       - name: b2 -  Setup Boost
         run: |
