@@ -42,22 +42,6 @@ jobs:
         run: |
           ssh rvu24 "cd boost_1_82_0/status && ../b2 -j64 quick"
 
-      - name: cmake -  Setup Boost
-        run: |
-          ssh rvu24 "cd boost_1_82_0 && mkdir __build__ && cd __build__ && cmake -DBUILD_SHARED_LIBS=ON -DCMAKE_INSTALL_PREFIX=~/.local .."
-
-      - name: cmake -  Build Boost
-        run: |
-          ssh rvu24 "cd boost_1_82_0/__build__ &&  cmake --build . -j 64"
-
-      - name: cmake -  Install Boost
-        run: |
-          ssh rvu24 "cd boost_1_82_0/__build__ && cmake --build . -j 64 --target install"
-
-      - name: cmake -  Test Boost
-        run: |
-          ssh rvu24 "cd boost_1_82_0/__build && cmake -DBUILD_TESTING=ON .. && cmake --build . -j 64 --target tests && ctest --output-on-failure --no-tests=error -j 64 -R quick"
-
       - name: Build deb package
         run: |
           ssh rvu24 "git clone https://github.com/ceph/ceph-boost;\
