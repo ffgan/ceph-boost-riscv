@@ -9,15 +9,12 @@ on:
 
 jobs:
   b2-posix:
-    strategy:
-      fail-fast: false
-
     runs-on: self-hosted
     timeout-minutes: 30000
     steps:
       - name: Show uname info
         run: |
-          ssh rv_u24 "uname -a && && cat /etc/os-release"
+          ssh rv_u24 "uname -a && cat /etc/os-release"
       - name: Download Boost
         run: |
           # https://docs.ceph.com/en/latest/dev/continuous-integration/#build-dependencies
