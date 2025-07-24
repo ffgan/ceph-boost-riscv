@@ -40,11 +40,11 @@ jobs:
 
       - name: b2 -  Test Boost
         run: |
-          ssh rvu24 "cd boost_1_82_0/status && ../b2 -j64 quick"
+          ssh rvu24 "cd boost_1_82_0/status && ../b2 -j64 quick && sleep 30"
 
       - name: Build deb package
         run: |
-          ssh rvu24 "apt install debhelper-compat dctrl-tools chrpath libbz2-dev liblzma-dev libzstd-dev libicu-dev mpi-default-dev bison flex docbook-to-man help2man xsltproc doxygen dh-python python3-all-dev python3-numpy graphviz dpkg-dev"
+          ssh rvu24 "apt install -y debhelper-compat dctrl-tools chrpath libbz2-dev liblzma-dev libzstd-dev libicu-dev mpi-default-dev bison flex docbook-to-man help2man xsltproc doxygen dh-python python3-all-dev python3-numpy graphviz dpkg-dev"
           ssh rvu24 "git clone https://github.com/ceph/ceph-boost ; cp -ra ceph-boost/debian boost_1_82_0/ ; pushd boost_1_82_0/;  export DEB_BUILD_OPTIONS='parallel=6 nodoc';  sed -i 's/1.21/1.82/g' debian/control; dpkg-buildpackage -us -uc -b; popd;ls -l"
 
       - name: Copy deb package
