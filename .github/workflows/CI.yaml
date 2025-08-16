@@ -10,17 +10,10 @@ on:
 jobs:
   b2-posix:
     runs-on: ubuntu-latest
-    timeout-minutes: 60
     steps:
       - name: show uname
         run: |
           uname -a
-      # - name: checkout code
-      #   uses: actions/checkout@v4
-      #   with:
-      #       repository: ffgan/ceph
-      #       ref: feature/allow_riscv64_compile
-      #       submodules: 'true'
 
       - name: setup qemu
         uses: docker/setup-qemu-action@v3
@@ -56,20 +49,20 @@ jobs:
 
       - name: b2 -  Build Boost
         run: |
-          docker exec u22 bash -c "cd boost_1_82_0 &&  ./b2 -j64 stage"
+          docker exec u22 bash -c "cd boost_1_82_0 &&  ./b2 -j4 stage"
 
       - name: b2 -  Install Boost
         run: |
-          docker exec u22 bash -c "cd boost_1_82_0 && ./b2 -j64 --prefix=$HOME/.local install"
+          docker exec u22 bash -c "cd boost_1_82_0 && ./b2 -j4 --prefix=$HOME/.local install"
 
       - name: b2 -  Test Boost
         run: |
-          docker exec u22 bash -c "cd boost_1_82_0/status && ../b2 -j64 quick && sleep 30"
+          docker exec u22 bash -c "cd boost_1_82_0/status && ../b2 -j4 quick && sleep 30"
 
       - name: Build deb package
         run: |
           docker exec u22 bash -c "apt install -y debhelper-compat dctrl-tools chrpath libbz2-dev liblzma-dev libzstd-dev libicu-dev mpi-default-dev bison flex docbook-to-man help2man xsltproc doxygen dh-python python3-all-dev python3-numpy graphviz dpkg-dev"
-          docker exec u22 bash -c "git clone https://github.com/ceph/ceph-boost ; cp -ra ceph-boost/debian boost_1_82_0/ ; pushd boost_1_82_0/;  export DEB_BUILD_OPTIONS='parallel=6 nodoc';  sed -i 's/1.21/1.82/g' debian/control; dpkg-buildpackage -us -uc -b; popd;ls -l"
+          docker exec u22 bash -c "git clone https://github.com/ceph/ceph-boost ; cp -ra ceph-boost/debian boost_1_82_0/ ; pushd boost_1_82_0/;  export DEB_BUILD_OPTIONS='parallel=4 nodoc';  sed -i 's/1.21/1.82/g' debian/control; dpkg-buildpackage -us -uc -b; popd;ls -l"
 
       - name: Copy deb package
         run: |
