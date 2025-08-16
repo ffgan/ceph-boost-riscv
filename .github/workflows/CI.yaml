@@ -38,6 +38,11 @@ jobs:
         run: |
           docker exec u22 uname -a
           docker exec u22 cat /etc/os-release
+
+      - name: install dep
+        run: |
+          docker exec u22 bash -c "apt update && apt install curl tar -y"
+
       - name: Download Boost
         run: |
           # https://docs.ceph.com/en/latest/dev/continuous-integration/#build-dependencies
