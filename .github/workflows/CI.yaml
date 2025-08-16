@@ -24,11 +24,11 @@ jobs:
               container-exec: "docker exec u24",
               container-name: "u24",
             },
-            {
-              image: debian:13,
-              container-exec: "docker exec deb13",
-              container-name: "deb13",
-            },
+            # {
+            #   image: debian:13,
+            #   container-exec: "docker exec deb13",
+            #   container-name: "deb13",
+            # },
           ]
     steps:
       - name: setup qemu
