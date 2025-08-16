@@ -41,7 +41,7 @@ jobs:
 
       - name: install dep
         run: |
-          docker exec u22 bash -c "apt update && apt install curl tar -y"
+          docker exec u22 bash -c "apt update && apt install curl tar bzip2 -y"
 
       - name: Download Boost
         run: |
