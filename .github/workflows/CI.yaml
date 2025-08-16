@@ -13,7 +13,7 @@ jobs:
     container:
       image: ubuntu:24.04
       options: --platform linux/riscv64
-    timeout-minutes: 30000
+    timeout-minutes: 60
     steps:
       - name: show uname
         run: |
