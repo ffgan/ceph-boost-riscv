@@ -10,6 +10,26 @@ on:
 jobs:
   b2-posix:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        container:
+          [
+            {
+              image: ubuntu:22.04,
+              container-exec: "docker exec u22",
+              container-name: "u22",
+            },
+            {
+              image: ubuntu:24.04,
+              container-exec: "docker exec u24",
+              container-name: "u24",
+            },
+            {
+              image: debian:13,
+              container-exec: "docker exec deb13",
+              container-name: "deb13",
+            },
+          ]
     steps:
       - name: show uname
         run: |
@@ -25,48 +45,48 @@ jobs:
 
       - name: start container
         run: |
-          docker run --platform linux/riscv64 -d --name u22 -v ./:/src ubuntu:22.04 bash -c "while true; do sleep 30; done"
+          docker run --platform linux/riscv64 -d --name  ${{matrix.container.container-name}} -v ./:/src ${{matrix.container.image}} bash -c "while true; do sleep 30; done"
 
       - name: Show uname info
         run: |
-          docker exec u22 uname -a
-          docker exec u22 cat /etc/os-release
+          ${{matrix.container.container-exec}} uname -a
+          ${{matrix.container.container-exec}} cat /etc/os-release
 
       - name: install dep
         run: |
-          docker exec u22 bash -c "apt update && apt install curl tar bzip2 build-essential -y"
+          ${{matrix.container.container-exec}} bash -c "apt update && apt install curl tar bzip2 build-essential -y"
 
       - name: Download Boost
         run: |
           # https://docs.ceph.com/en/latest/dev/continuous-integration/#build-dependencies
           # download ceph-boost 1.82
-          docker exec u22 bash -c "curl http://download.ceph.com/qa/boost_1_82_0.tar.bz2 -o boost_1_82_0.tar.bz2"
-          docker exec u22 bash -c "tar xjf boost_1_82_0.tar.bz2 && cd boost_1_82_0 && ls -l "
+          ${{matrix.container.container-exec}} bash -c "curl http://download.ceph.com/qa/boost_1_82_0.tar.bz2 -o boost_1_82_0.tar.bz2"
+          ${{matrix.container.container-exec}} bash -c "tar xjf boost_1_82_0.tar.bz2 && cd boost_1_82_0 && ls -l "
 
       - name: b2 -  Setup Boost
         run: |
-          docker exec u22 bash -c "cd boost_1_82_0 && ./bootstrap.sh && ./b2 -d0 headers"
+          ${{matrix.container.container-exec}} bash -c "cd boost_1_82_0 && ./bootstrap.sh && ./b2 -d0 headers"
 
       - name: b2 -  Build Boost
         run: |
-          docker exec u22 bash -c "cd boost_1_82_0 &&  ./b2 -j4 stage"
+          ${{matrix.container.container-exec}} bash -c "cd boost_1_82_0 &&  ./b2 -j4 stage"
 
       - name: b2 -  Install Boost
         run: |
-          docker exec u22 bash -c "cd boost_1_82_0 && ./b2 -j4 --prefix=$HOME/.local install"
+          ${{matrix.container.container-exec}} bash -c "cd boost_1_82_0 && ./b2 -j4 --prefix=$HOME/.local install"
 
       - name: b2 -  Test Boost
         run: |
-          docker exec u22 bash -c "cd boost_1_82_0/status && ../b2 -j4 quick && sleep 30"
+          ${{matrix.container.container-exec}} bash -c "cd boost_1_82_0/status && ../b2 -j4 quick && sleep 30"
 
       - name: Build deb package
         run: |
-          docker exec u22 bash -c "apt install -y debhelper-compat dctrl-tools chrpath libbz2-dev liblzma-dev libzstd-dev libicu-dev mpi-default-dev bison flex docbook-to-man help2man xsltproc doxygen dh-python python3-all-dev python3-numpy graphviz dpkg-dev"
-          docker exec u22 bash -c "git clone https://github.com/ceph/ceph-boost ; cp -ra ceph-boost/debian boost_1_82_0/ ; pushd boost_1_82_0/;  export DEB_BUILD_OPTIONS='parallel=4 nodoc';  sed -i 's/1.21/1.82/g' debian/control; dpkg-buildpackage -us -uc -b; popd;ls -l"
+          ${{matrix.container.container-exec}} bash -c "apt install -y debhelper-compat dctrl-tools chrpath libbz2-dev liblzma-dev libzstd-dev libicu-dev mpi-default-dev bison flex docbook-to-man help2man xsltproc doxygen dh-python python3-all-dev python3-numpy graphviz dpkg-dev"
+          ${{matrix.container.container-exec}} bash -c "git clone https://github.com/ceph/ceph-boost ; cp -ra ceph-boost/debian boost_1_82_0/ ; pushd boost_1_82_0/;  export DEB_BUILD_OPTIONS='parallel=4 nodoc';  sed -i 's/1.21/1.82/g' debian/control; dpkg-buildpackage -us -uc -b; popd;ls -l"
 
       - name: Copy deb package
         run: |
-          docker cp u22:~/ceph*deb ./
+          docker cp ${{matrix.container.container-name}}:~/ceph*deb ./
 
       - name: Show deb package
         run: ls -l
@@ -74,5 +94,5 @@ jobs:
       - name: Upload deb package
         uses: actions/upload-artifact@v4
         with:
-          name: ceph-boost-deb
+          name: ceph-boost-deb-${{matrix.container.image}}
           path: ./ceph*deb
