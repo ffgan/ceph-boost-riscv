@@ -137,7 +137,7 @@ jobs:
 
       - name: Copy deb package
         run: |
-          docker cp ${{matrix.container.container-name}}:~/ceph*deb ./
+          docker cp ${{matrix.container.container-name}}:/ceph*deb ./
 
       - name: Show deb package
         run: ls -l
