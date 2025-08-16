@@ -117,7 +117,7 @@ jobs:
 
       - name: install dep
         run: |
-          ${{matrix.container.container-exec}} bash -c "apt update && apt install curl tar bzip2 build-essential -y"
+          ${{matrix.container.container-exec}} bash -c "apt update && apt install -y curl tar bzip2 build-essential git  debhelper-compat dctrl-tools chrpath libbz2-dev liblzma-dev libzstd-dev libicu-dev mpi-default-dev bison flex docbook-to-man help2man xsltproc doxygen dh-python python3-all-dev python3-numpy graphviz dpkg-dev"
 
       - name: Download Boost
         run: |
@@ -128,7 +128,6 @@ jobs:
 
       - name: Build deb package
         run: |
-          ${{matrix.container.container-exec}} bash -c "apt install -y debhelper-compat dctrl-tools chrpath libbz2-dev liblzma-dev libzstd-dev libicu-dev mpi-default-dev bison flex docbook-to-man help2man xsltproc doxygen dh-python python3-all-dev python3-numpy graphviz dpkg-dev"
           ${{matrix.container.container-exec}} bash -c "git clone https://github.com/ceph/ceph-boost ; cp -ra ceph-boost/debian boost_1_82_0/ ; pushd boost_1_82_0/;  export DEB_BUILD_OPTIONS='parallel=4 nodoc';  sed -i 's/1.21/1.82/g' debian/control; dpkg-buildpackage -us -uc -b; popd;ls -l"
 
       - name: Copy deb package
