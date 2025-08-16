@@ -122,7 +122,7 @@ jobs:
 
       - name: install dep
         run: |
-          ${{matrix.container.container-exec}} bash -c "apt update && apt install -y curl tar bzip2 build-essential git  debhelper-compat dctrl-tools chrpath libbz2-dev liblzma-dev libzstd-dev libicu-dev mpi-default-dev bison flex docbook-to-man help2man xsltproc doxygen dh-python python3-all-dev python3-numpy graphviz dpkg-dev"
+          ${{matrix.container.container-exec}} bash -c "apt update && apt install -y zip curl tar bzip2 build-essential git  debhelper-compat dctrl-tools chrpath libbz2-dev liblzma-dev libzstd-dev libicu-dev mpi-default-dev bison flex docbook-to-man help2man xsltproc doxygen dh-python python3-all-dev python3-numpy graphviz dpkg-dev"
 
       - name: Download Boost
         run: |
@@ -135,9 +135,13 @@ jobs:
         run: |
           ${{matrix.container.container-exec}} bash -c "git clone https://github.com/ceph/ceph-boost ; cp -ra ceph-boost/debian boost_1_82_0/ ; pushd boost_1_82_0/;  export DEB_BUILD_OPTIONS='parallel=4 nodoc';  sed -i 's/1.21/1.82/g' debian/control; dpkg-buildpackage -us -uc -b; popd;ls -l"
 
+      - name: zip deb package
+        run: |
+          ${{matrix.container.container-exec}} bash -c "zip ceph-boost-all.zip *deb"
+
       - name: Copy deb package
         run: |
-          docker cp ${{matrix.container.container-name}}:/ceph*deb ./
+          docker cp ${{matrix.container.container-name}}:/ceph-boost-all.zip ./
 
       - name: Show deb package
         run: ls -l
@@ -146,4 +150,4 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: ceph-boost-deb-${{matrix.container.image}}
-          path: ./ceph*deb
+          path: ./ceph-boost-all.zip
