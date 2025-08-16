@@ -12,7 +12,7 @@ jobs:
     runs-on: ubuntu-latest
     container:
       image: ubuntu
-      options: --platform linux/riscv64
+      # options: --platform linux/riscv64
     timeout-minutes: 60
     steps:
       - name: show uname
