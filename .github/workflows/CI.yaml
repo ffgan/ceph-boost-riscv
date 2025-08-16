@@ -11,8 +11,8 @@ jobs:
   b2-posix:
     runs-on: ubuntu-latest
     container:
-      image: ubuntu:24.04
-      options: --platform linux/riscv64 --entrypoint "while true;do sleep 10;done"
+      image: ubuntu
+      options: --platform linux/riscv64
     timeout-minutes: 60
     steps:
       - name: show uname
