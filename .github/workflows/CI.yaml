@@ -8,7 +8,7 @@ on:
       - "**"
 
 jobs:
-  b2-posix:
+  build-and-test:
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -31,10 +31,6 @@ jobs:
             },
           ]
     steps:
-      - name: show uname
-        run: |
-          uname -a
-
       - name: setup qemu
         uses: docker/setup-qemu-action@v3
         with:
@@ -78,6 +74,57 @@ jobs:
       - name: b2 -  Test Boost
         run: |
           ${{matrix.container.container-exec}} bash -c "cd boost_1_82_0/status && ../b2 -j4 quick && sleep 30"
+
+  build-deb:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        container:
+          [
+            {
+              image: ubuntu:22.04,
+              container-exec: "docker exec u22",
+              container-name: "u22",
+            },
+            {
+              image: ubuntu:24.04,
+              container-exec: "docker exec u24",
+              container-name: "u24",
+            },
+            {
+              image: debian:13,
+              container-exec: "docker exec deb13",
+              container-name: "deb13",
+            },
+          ]
+    steps:
+      - name: setup qemu
+        uses: docker/setup-qemu-action@v3
+        with:
+          platforms: riscv64
+
+      - name: setup docker  Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: start container
+        run: |
+          docker run --platform linux/riscv64 -d --name  ${{matrix.container.container-name}} -v ./:/src ${{matrix.container.image}} bash -c "while true; do sleep 30; done"
+
+      - name: Show uname info
+        run: |
+          ${{matrix.container.container-exec}} uname -a
+          ${{matrix.container.container-exec}} cat /etc/os-release
+
+      - name: install dep
+        run: |
+          ${{matrix.container.container-exec}} bash -c "apt update && apt install curl tar bzip2 build-essential -y"
+
+      - name: Download Boost
+        run: |
+          # https://docs.ceph.com/en/latest/dev/continuous-integration/#build-dependencies
+          # download ceph-boost 1.82
+          ${{matrix.container.container-exec}} bash -c "curl http://download.ceph.com/qa/boost_1_82_0.tar.bz2 -o boost_1_82_0.tar.bz2"
+          ${{matrix.container.container-exec}} bash -c "tar xjf boost_1_82_0.tar.bz2 && cd boost_1_82_0 && ls -l "
 
       - name: Build deb package
         run: |
