@@ -10,9 +10,6 @@ on:
 jobs:
   b2-posix:
     runs-on: ubuntu-latest
-    container:
-      image: ubuntu
-      # options: --platform linux/riscv64
     timeout-minutes: 60
     steps:
       - name: show uname
@@ -25,17 +22,22 @@ jobs:
       #       ref: feature/allow_riscv64_compile
       #       submodules: 'true'
 
-      # - name: setup qemu
-      #   uses: docker/setup-qemu-action@v3
-      #   with:
-      #     platforms: riscv64
+      - name: setup qemu
+        uses: docker/setup-qemu-action@v3
+        with:
+          platforms: riscv64
 
-      # - name: setup docker  Buildx
-      #   uses: docker/setup-buildx-action@v3
+      - name: setup docker  Buildx
+        uses: docker/setup-buildx-action@v3
 
-      # - name: Show uname info
-      #   run: |
-      #     ssh rv_u24 "uname -a && cat /etc/os-release"
+      - name: start container
+        run: |
+          docker run --platform linux/riscv64 -d --name u22 -v ./:/src ubuntu:22.04 bash -c "while true; do sleep 30; done"
+
+      - name: Show uname info
+        run: |
+          docker exec u22 uname -a
+          docker exec u22 cat /etc/os-release
       # - name: Download Boost
       #   run: |
       #     # https://docs.ceph.com/en/latest/dev/continuous-integration/#build-dependencies
