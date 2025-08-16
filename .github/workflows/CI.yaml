@@ -73,7 +73,7 @@ jobs:
 
       - name: Copy deb package
         run: |
-          docker cp rv_u24:~/ceph*deb ./
+          docker cp u22:~/ceph*deb ./
 
       - name: Show deb package
         run: ls -l
