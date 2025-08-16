@@ -9,50 +9,71 @@ on:
 
 jobs:
   b2-posix:
-    runs-on: self-hosted
+    runs-on: ubuntu-latest
+    container:
+      image: ubuntu:24.04
+      options: --platform linux/riscv64
     timeout-minutes: 30000
     steps:
-      - name: Show uname info
+      - name: show uname
         run: |
-          ssh rv_u24 "uname -a && cat /etc/os-release"
-      - name: Download Boost
-        run: |
-          # https://docs.ceph.com/en/latest/dev/continuous-integration/#build-dependencies
-          # download ceph-boost 1.82
-          curl http://download.ceph.com/qa/boost_1_82_0.tar.bz2 -o boost_1_82_0.tar.bz2
-          scp boost_1_82_0.tar.bz2 rv_u24:~/
-          ssh rv_u24 "tar xjf boost_1_82_0.tar.bz2 && cd boost_1_82_0 && ls -l "
+          uname -a
+      # - name: checkout code
+      #   uses: actions/checkout@v4
+      #   with:
+      #       repository: ffgan/ceph
+      #       ref: feature/allow_riscv64_compile
+      #       submodules: 'true'
 
-      - name: b2 -  Setup Boost
-        run: |
-          ssh rv_u24 "cd boost_1_82_0 && ./bootstrap.sh && ./b2 -d0 headers"
+      # - name: setup qemu
+      #   uses: docker/setup-qemu-action@v3
+      #   with:
+      #     platforms: riscv64
 
-      - name: b2 -  Build Boost
-        run: |
-          ssh rv_u24 "cd boost_1_82_0 &&  ./b2 -j64 stage"
+      # - name: setup docker  Buildx
+      #   uses: docker/setup-buildx-action@v3
 
-      - name: b2 -  Install Boost
-        run: |
-          ssh rv_u24 "cd boost_1_82_0 && ./b2 -j64 --prefix=$HOME/.local install"
+      # - name: Show uname info
+      #   run: |
+      #     ssh rv_u24 "uname -a && cat /etc/os-release"
+      # - name: Download Boost
+      #   run: |
+      #     # https://docs.ceph.com/en/latest/dev/continuous-integration/#build-dependencies
+      #     # download ceph-boost 1.82
+      #     curl http://download.ceph.com/qa/boost_1_82_0.tar.bz2 -o boost_1_82_0.tar.bz2
+      #     scp boost_1_82_0.tar.bz2 rv_u24:~/
+      #     ssh rv_u24 "tar xjf boost_1_82_0.tar.bz2 && cd boost_1_82_0 && ls -l "
 
-      - name: b2 -  Test Boost
-        run: |
-          ssh rv_u24 "cd boost_1_82_0/status && ../b2 -j64 quick && sleep 30"
+      # - name: b2 -  Setup Boost
+      #   run: |
+      #     ssh rv_u24 "cd boost_1_82_0 && ./bootstrap.sh && ./b2 -d0 headers"
 
-      - name: Build deb package
-        run: |
-          ssh rv_u24 "apt install -y debhelper-compat dctrl-tools chrpath libbz2-dev liblzma-dev libzstd-dev libicu-dev mpi-default-dev bison flex docbook-to-man help2man xsltproc doxygen dh-python python3-all-dev python3-numpy graphviz dpkg-dev"
-          ssh rv_u24 "git clone https://github.com/ceph/ceph-boost ; cp -ra ceph-boost/debian boost_1_82_0/ ; pushd boost_1_82_0/;  export DEB_BUILD_OPTIONS='parallel=6 nodoc';  sed -i 's/1.21/1.82/g' debian/control; dpkg-buildpackage -us -uc -b; popd;ls -l"
+      # - name: b2 -  Build Boost
+      #   run: |
+      #     ssh rv_u24 "cd boost_1_82_0 &&  ./b2 -j64 stage"
 
-      - name: Copy deb package
-        run: |
-          scp rv_u24:~/ceph*deb ./
+      # - name: b2 -  Install Boost
+      #   run: |
+      #     ssh rv_u24 "cd boost_1_82_0 && ./b2 -j64 --prefix=$HOME/.local install"
 
-      - name: Show deb package
-        run: dir
+      # - name: b2 -  Test Boost
+      #   run: |
+      #     ssh rv_u24 "cd boost_1_82_0/status && ../b2 -j64 quick && sleep 30"
 
-      - name: Upload deb package
-        uses: actions/upload-artifact@v4
-        with:
-          name: ceph-boost-deb
-          path: ./ceph*deb
+      # - name: Build deb package
+      #   run: |
+      #     ssh rv_u24 "apt install -y debhelper-compat dctrl-tools chrpath libbz2-dev liblzma-dev libzstd-dev libicu-dev mpi-default-dev bison flex docbook-to-man help2man xsltproc doxygen dh-python python3-all-dev python3-numpy graphviz dpkg-dev"
+      #     ssh rv_u24 "git clone https://github.com/ceph/ceph-boost ; cp -ra ceph-boost/debian boost_1_82_0/ ; pushd boost_1_82_0/;  export DEB_BUILD_OPTIONS='parallel=6 nodoc';  sed -i 's/1.21/1.82/g' debian/control; dpkg-buildpackage -us -uc -b; popd;ls -l"
+
+      # - name: Copy deb package
+      #   run: |
+      #     scp rv_u24:~/ceph*deb ./
+
+      # - name: Show deb package
+      #   run: dir
+
+      # - name: Upload deb package
+      #   uses: actions/upload-artifact@v4
+      #   with:
+      #     name: ceph-boost-deb
+      #     path: ./ceph*deb
