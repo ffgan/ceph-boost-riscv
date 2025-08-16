@@ -12,7 +12,7 @@ jobs:
     runs-on: ubuntu-latest
     container:
       image: ubuntu:24.04
-      options: --platform linux/riscv64
+      options: --platform linux/riscv64 --entrypoint "while true;do sleep 10;done"
     timeout-minutes: 60
     steps:
       - name: show uname
