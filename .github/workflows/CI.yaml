@@ -149,4 +149,5 @@ jobs:
       - name: Upload deb package
         uses: actions/upload-artifact@v4
         with:
-          name: ceph-boost-deb-${{matrix.container.image}}
+          name: ceph-boost-deb-${{matrix.container.container-name}}
+          path: ./ceph-boost-all.zip
