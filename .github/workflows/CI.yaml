@@ -54,25 +54,25 @@ jobs:
       - name: Download Boost
         run: |
           # https://docs.ceph.com/en/latest/dev/continuous-integration/#build-dependencies
-          # download ceph-boost 1.82
-          ${{matrix.container.container-exec}} bash -c "curl http://download.ceph.com/qa/boost_1_82_0.tar.bz2 -o boost_1_82_0.tar.bz2"
-          ${{matrix.container.container-exec}} bash -c "tar xjf boost_1_82_0.tar.bz2 && cd boost_1_82_0 && ls -l "
+          # download ceph-boost 1.87
+          ${{matrix.container.container-exec}} bash -c "curl http://download.ceph.com/qa/boost_1_87_0.tar.bz2 -o boost_1_87_0.tar.bz2"
+          ${{matrix.container.container-exec}} bash -c "tar xjf boost_1_87_0.tar.bz2 && cd boost_1_87_0 && ls -l "
 
       - name: b2 -  Setup Boost
         run: |
-          ${{matrix.container.container-exec}} bash -c "cd boost_1_82_0 && ./bootstrap.sh && ./b2 -d0 headers"
+          ${{matrix.container.container-exec}} bash -c "cd boost_1_87_0 && ./bootstrap.sh && ./b2 -d0 headers"
 
       - name: b2 -  Build Boost
         run: |
-          ${{matrix.container.container-exec}} bash -c "cd boost_1_82_0 &&  ./b2 -j4 stage"
+          ${{matrix.container.container-exec}} bash -c "cd boost_1_87_0 &&  ./b2 -j4 stage"
 
       - name: b2 -  Install Boost
         run: |
-          ${{matrix.container.container-exec}} bash -c "cd boost_1_82_0 && ./b2 -j4 --prefix=$HOME/.local install"
+          ${{matrix.container.container-exec}} bash -c "cd boost_1_87_0 && ./b2 -j4 --prefix=$HOME/.local install"
 
       - name: b2 -  Test Boost
         run: |
-          ${{matrix.container.container-exec}} bash -c "cd boost_1_82_0/status && ../b2 -j4 quick && sleep 30"
+          ${{matrix.container.container-exec}} bash -c "cd boost_1_87_0/status && ../b2 -j4 quick && sleep 30"
 
   build-deb:
     runs-on: ubuntu-latest
@@ -128,12 +128,12 @@ jobs:
         run: |
           # https://docs.ceph.com/en/latest/dev/continuous-integration/#build-dependencies
           # download ceph-boost 1.82
-          ${{matrix.container.container-exec}} bash -c "curl http://download.ceph.com/qa/boost_1_82_0.tar.bz2 -o boost_1_82_0.tar.bz2"
-          ${{matrix.container.container-exec}} bash -c "tar xjf boost_1_82_0.tar.bz2 && cd boost_1_82_0 && ls -l "
+          ${{matrix.container.container-exec}} bash -c "curl http://download.ceph.com/qa/boost_1_87_0.tar.bz2 -o boost_1_87_0.tar.bz2"
+          ${{matrix.container.container-exec}} bash -c "tar xjf boost_1_87_0.tar.bz2 && cd boost_1_87_0 && ls -l "
 
       - name: Build deb package
         run: |
-          ${{matrix.container.container-exec}} bash -c "git clone https://github.com/ceph/ceph-boost ; cp -ra ceph-boost/debian boost_1_82_0/ ; pushd boost_1_82_0/;  export DEB_BUILD_OPTIONS='parallel=4 nodoc';  sed -i 's/1.21/1.82/g' debian/control; dpkg-buildpackage -us -uc -b; popd;ls -l"
+          ${{matrix.container.container-exec}} bash -c "git clone https://github.com/adamemerson/ceph-boost.git && cd ceph-boost && git switch wip-1.87 && cd .. &&  cp -ra ceph-boost/debian boost_1_87_0/ ; pushd boost_1_87_0/;  export DEB_BUILD_OPTIONS='parallel=4 nodoc';  dpkg-buildpackage -us -uc -b; popd;ls -l"
 
       - name: zip deb package
         run: |
